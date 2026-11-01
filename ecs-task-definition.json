@@ -1,0 +1,68 @@
+{
+  "family": "aws-devops-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::743508003388:role/ecsTaskExecutionRole",
+  "runtimePlatform": {
+    "operatingSystemFamily": "LINUX",
+    "cpuArchitecture": "X86_64"
+  },
+  "containerDefinitions": [
+    {
+      "name": "backend",
+      "image": "743508003388.dkr.ecr.ap-south-1.amazonaws.com/aws-devops-backend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/aws-devops-task",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    },
+    {
+      "name": "frontend",
+      "image": "743508003388.dkr.ecr.ap-south-1.amazonaws.com/aws-devops-frontend:latest",
+      "essential": true,
+      "dependsOn": [
+        {
+          "containerName": "backend",
+          "condition": "START"
+        }
+      ],
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "BACKEND_URL",
+          "value": "http://127.0.0.1:5000"
+        },
+        {
+          "name": "PORT",
+          "value": "3000"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/aws-devops-task",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "frontend"
+        }
+      }
+    }
+  ]
+}

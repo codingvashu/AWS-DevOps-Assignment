@@ -1,0 +1,29 @@
+services:
+  backend:
+    platform: linux/amd64
+    build:
+      context: ./backend
+    container_name: aws-backend-compose
+    ports:
+      - "5004:5000"
+    networks:
+      - aws-network
+
+  frontend:
+    platform: linux/amd64
+    build:
+      context: ./frontend
+    container_name: aws-frontend
+    ports:
+      - "3002:3000"
+    environment:
+      BACKEND_URL: "http://backend:5000"
+      PORT: "3000"
+    depends_on:
+      - backend
+    networks:
+      - aws-network
+
+networks:
+  aws-network:
+    driver: bridge
